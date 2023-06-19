@@ -4,7 +4,6 @@ import * as Yup from 'yup';
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useFetchNotesQuery, useEditNoteMutation } from "../store/api/NoteSlice";
-import { unwrapResult } from '@reduxjs/toolkit';
 
 const EditNote = () => {
 
