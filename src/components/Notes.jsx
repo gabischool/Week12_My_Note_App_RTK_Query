@@ -2,30 +2,23 @@
 
 import React, { useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { useSelector, useDispatch } from "react-redux";
-import { deleteNote, fetchNotes } from "../store/api/NoteSlice";
 import { Link } from "react-router-dom";
+import { useFetchNotesQuery, useDeleteNoteMutation } from "../store/api/NoteSlice";
 
 function Notes() {
-  const allNotes = useSelector((state) => state.notes);
 
-  const { notes, status, error } = allNotes;
+  const {data: notes = [], isLoading} = useFetchNotesQuery();
+  // console.log(data);
+  const [ deleteNote] = useDeleteNoteMutation()
 
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchNotes());
-  }, [dispatch]);
-
-  const deleteNoteHandler = (id) => {
-    dispatch(deleteNote(id));
+  const deleteNoteHandler = (noteId) => {
+    deleteNote(noteId);
   };
   
-
   return (
+    <>
+    {isLoading ?  <div className="relative p-5 bg-yellow-400 w-64 h-64 m-5 shadow-2xl overflow-hidden">Loading...</div> :
     <div className="flex flex-wrap justify-center mt-5">
-      {status === "loading" && <div className="relative p-5 bg-yellow-400 w-64 h-64 m-5 shadow-2xl overflow-hidden">Loading...</div>}
-      {status === "failed" && <div className="relative p-5 bg-yellow-400 w-64 h-64 m-5 shadow-2xl overflow-hidden">Sorry, {error}</div>}
       {notes.map((note) =>  (
         <div
           className="relative bg-yellow-400 w-64 h-64 m-5 shadow-2xl overflow-hidden"
@@ -48,7 +41,9 @@ function Notes() {
           </div>
         </div>
       ))}
-    </div>
+    </div> 
+    }
+    </>
   );
 }
 
