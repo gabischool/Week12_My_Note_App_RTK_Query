@@ -1,12 +1,13 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useDispatch } from "react-redux";
-import { addNote } from "../store/api/NoteSlice";
+import { useAddNoteMutation } from '../store/api/NoteSlice';
+import { useNavigate } from 'react-router-dom';
 
-const AddNote = (props) => {
+const AddNote = () => {
 
-  const dispatch = useDispatch();
+  const [ addNote ] = useAddNoteMutation()
+  const navigate = useNavigate();
 
   const initialValues = {
     title: '',
@@ -20,10 +21,10 @@ const AddNote = (props) => {
 
   const handleSubmit = (values, { resetForm }) => {
     // Send the data to the server (localhost:9000/create_note)
-    dispatch(addNote({
+    addNote({
       title: values.title,
       content: values.content,
-    }));
+    }).unwrap().then(() => navigate('/'))
     
 
     // Reset the form after submission

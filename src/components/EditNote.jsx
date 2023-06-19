@@ -1,38 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useSelector, useDispatch } from "react-redux";
-import { editNote, fetchNotes } from "../store/api/NoteSlice";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useEditNoteMutation, useFetchNotesQuery } from '../store/api/NoteSlice';
 
 const EditNote = () => {
 
-  const dispatch = useDispatch();
-  const params = useParams();
   const navigate = useNavigate();
+  const [currentNote, setCurrentNote] = useState({});
 
-  const [initialValues, setInitialValues] = useState({
-    title: '',
-    content: '',
-  });
+  const [ editNote ] = useEditNoteMutation();
+  const { data: notes } = useFetchNotesQuery();
 
-  const allNotes = useSelector((state) => state.notes.notes);
+  const initialValues = {
+    title: currentNote.title,
+    content: currentNote.content,
+  }
+
+
+  const params = useParams();
 
   useEffect(() => {
-    dispatch(fetchNotes());
-  }, [dispatch]);
-  
-  useEffect(() => {
-    const note = allNotes.find((note) => note.id === Number(params.id));
-    if (note) {
-      setInitialValues({
-        title: note.title,
-        content: note.content,
-      });
+    if(notes.length > 0) {
+      const note = notes.find((note) => note.id === Number(params.id));
+      if(note) {
+        setCurrentNote(note);
+      }
     }
-  }, [allNotes, params.id]);
-
+  }, [notes, params.id])
 
 
   const validationSchema = Yup.object({
@@ -42,10 +38,10 @@ const EditNote = () => {
 
   const handleSubmit = (values) => {
  
-    dispatch(editNote({
-      noteId: Number(params.id),
+    editNote({
+      noteId: params.id,
       updateNote: values,
-    })).then(() => {
+    }).unwrap().then(() => {
       navigate('/');
     });
   };
@@ -53,10 +49,10 @@ const EditNote = () => {
   return (
     <div className="bg-white p-10 rounded-lg shadow md:w-3/4 mx-auto lg:w-1/2">
       <Formik
+        enableReinitialize
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
-        enableReinitialize
       >
         <Form>
           <div className="mb-5">
