@@ -1,62 +1,62 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useSelector, useDispatch } from "react-redux";
-import { editNote, fetchNotes } from "../store/api/NoteSlice";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useUpdateNotesMutation, useFetchNotesQuery } from '../store/api/NoteSlice';
 
 const EditNote = () => {
 
-  const dispatch = useDispatch();
   const params = useParams();
   const navigate = useNavigate();
-
-  const [initialValues, setInitialValues] = useState({
-    title: '',
-    content: '',
+  const { data: notes = [] } = useFetchNotesQuery();
+  const [note, setNote] = useState({
+    title: "",
+    content: "",
   });
 
-  const allNotes = useSelector((state) => state.notes.notes);
+
+
+  const [updateNotes] = useUpdateNotesMutation();
 
   useEffect(() => {
-    dispatch(fetchNotes());
-  }, [dispatch]);
-  
-  useEffect(() => {
-    const note = allNotes.find((note) => note.id === Number(params.id));
-    if (note) {
-      setInitialValues({
-        title: note.title,
-        content: note.content,
+    const noteInfo = notes.find(note => note.id === Number(params.id));
+    if (noteInfo) {
+      setNote({
+        title: noteInfo.title,
+        content: noteInfo.content,
       });
     }
-  }, [allNotes, params.id]);
+  }, [params.id, notes])
 
-
-
+  const initialValues = {
+    title: note.title,
+    content: note.content
+  }
   const validationSchema = Yup.object({
     title: Yup.string().required('Title is required'),
     content: Yup.string().required('Content is required'),
   });
 
   const handleSubmit = (values) => {
- 
-    dispatch(editNote({
-      noteId: Number(params.id),
-      updateNote: values,
-    })).then(() => {
-      navigate('/');
-    });
+    updateNotes({
+      id: Number(params.id),
+      updateNote: values
+    }).unwrap().then(()=>{
+      navigate("/")
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
   };
 
   return (
-    <div className="bg-white p-10 rounded-lg shadow md:w-3/4 mx-auto lg:w-1/2">
+    <div className="bg-white p-10 rounded-lg shadow w-[95%]">
       <Formik
+        enableReinitialize
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
-        enableReinitialize
       >
         <Form>
           <div className="mb-5">
@@ -90,6 +90,16 @@ const EditNote = () => {
       </Formik>
     </div>
   );
+
+  // useEffect(() => {
+  //   const note = allNotes.find((note) => note.id === Number(params.id));
+  //   if (note) {
+  //     setInitialValues({
+  //       title: note.title,
+  //       content: note.content,
+  //     });
+  //   }
+  // }, [allNotes, params.id]);
 };
 
 export default EditNote;
