@@ -1,53 +1,55 @@
-import React, { useEffect, useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { useSelector, useDispatch } from "react-redux";
-import { editNote, fetchNotes } from "../store/api/NoteSlice";
+import { useEffect, useState } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import {
+  useUpdateNotesMutation,
+  useFetchNotesQuery,
+} from "../store/api/NoteSlice";
 
 const EditNote = () => {
-
-  const dispatch = useDispatch();
   const params = useParams();
   const navigate = useNavigate();
-
-  const [initialValues, setInitialValues] = useState({
-    title: '',
-    content: '',
+  const { data: notes = [] } = useFetchNotesQuery();
+  const [note, setNote] = useState({
+    title: "",
+    content: "",
   });
 
-  const allNotes = useSelector((state) => state.notes.notes);
+  const [updateNotes] = useUpdateNotesMutation();
 
   useEffect(() => {
-    dispatch(fetchNotes());
-  }, [dispatch]);
-  
-  useEffect(() => {
-    const note = allNotes.find((note) => note.id === Number(params.id));
-    if (note) {
-      setInitialValues({
-        title: note.title,
-        content: note.content,
+    const noteInfo = notes.find((note) => note.id === Number(params.id));
+    if (noteInfo) {
+      setNote({
+        title: noteInfo.title,
+        content: noteInfo.content,
       });
     }
-  }, [allNotes, params.id]);
+  }, [params.id, notes]);
 
-
-
+  const initialValues = {
+    title: note.title,
+    content: note.content,
+  };
   const validationSchema = Yup.object({
-    title: Yup.string().required('Title is required'),
-    content: Yup.string().required('Content is required'),
+    title: Yup.string().required("Title is required"),
+    content: Yup.string().required("Content is required"),
   });
 
   const handleSubmit = (values) => {
- 
-    dispatch(editNote({
-      noteId: Number(params.id),
+    updateNotes({
+      id: Number(params.id),
       updateNote: values,
-    })).then(() => {
-      navigate('/');
-    });
+    })
+      .unwrap()
+      .then(() => {
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -56,8 +58,7 @@ const EditNote = () => {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
-        enableReinitialize
-      >
+        enableReinitialize>
         <Form>
           <div className="mb-5">
             <Field
@@ -67,7 +68,11 @@ const EditNote = () => {
               placeholder="Title"
               className="border border-gray-300 shadow p-3 w-full rounded mb-"
             />
-            <ErrorMessage name="title" component="div" className="text-red-500" />
+            <ErrorMessage
+              name="title"
+              component="div"
+              className="text-red-500"
+            />
           </div>
 
           <div className="mb-5">
@@ -77,13 +82,16 @@ const EditNote = () => {
               placeholder="Body"
               className="border border-gray-300 shadow p-3 w-full rounded mb-"
             />
-            <ErrorMessage name="content" component="div" className="text-red-500" />
+            <ErrorMessage
+              name="content"
+              component="div"
+              className="text-red-500"
+            />
           </div>
 
           <button
             type="submit"
-            className="block w-full bg-yellow-400 text-black font-bold p-4 rounded-lg hover:bg-yellow-500"
-          >
+            className="block w-full bg-yellow-400 text-black font-bold p-4 rounded-lg hover:bg-yellow-500">
             Update Note
           </button>
         </Form>
