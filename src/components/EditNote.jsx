@@ -43,7 +43,7 @@ import { useNavigate } from "react-router-dom";
     editNote({
       noteId: Number(params.id),
       updatedNote: values
-    }),unwrap()
+    }).unwrap()
     .then(() => {
       navigate('/');
     })

@@ -1,12 +1,12 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 
 // SET UP 
 const BASE_URL  = 'http://localhost:9000';
 
 export const noteSlice = createApi({
-        reducerPath: 'noteApi',
-
+       
+    reducerPath: 'noteApi',
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
     }),
@@ -34,7 +34,7 @@ export const noteSlice = createApi({
         // add note
         addNote: builder.mutation({
             query: (newNote) => ({
-                url: "notes",
+                url: "create_note",
                 method: 'POST',
                 body: newNote,
             }),
@@ -45,7 +45,7 @@ export const noteSlice = createApi({
 
         deleteNote: builder.mutation({
             query: (noteId) => ({
-                url: `notes/${noteId}`,
+                url: `delete_note/${noteId}`,
                 method: 'DELETE',
             }),
             invalidatesTags: ['notes'],
@@ -53,8 +53,8 @@ export const noteSlice = createApi({
 
         editeNote: builder.mutation({
             query: ({noteId, updatedNote}) => ({
-                url: `notes/${noteId}`,
-                method: 'PUT        ',
+                url: `update_note/${noteId}`,
+                method: 'PUT ',
                 body: updatedNote,
                 
             }),

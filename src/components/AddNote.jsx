@@ -21,7 +21,8 @@ const navigate = useNavigate();
   });
 
   const handleSubmit = (values) => {
-    addNote(values).unwrap()
+    addNote(values)
+    .unwrap()
      .then(() => {
         navigate("/")
         
