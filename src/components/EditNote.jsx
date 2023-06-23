@@ -1,37 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState} from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useSelector, useDispatch } from "react-redux";
-import { editNote, fetchNotes } from "../store/api/NoteSlice";
+import { useEditeNoteMutation, useFetchNotesQuery } from '../store/api/NoteSlice';
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-const EditNote = () => {
+ const EditNote = () => {
 
-  const dispatch = useDispatch();
-  const params = useParams();
+ 
   const navigate = useNavigate();
+  const [currentNote, setCurrentNote] = useState({});
+  
+  const  [editNote] =  useEditeNoteMutation()
+  const  {data: notes=[]} = useFetchNotesQuery()
+  
+  
 
-  const [initialValues, setInitialValues] = useState({
-    title: '',
-    content: '',
-  });
+  const initialValues ={
+    title: currentNote.title,
+    content: currentNote.content,
+  };
 
-  const allNotes = useSelector((state) => state.notes.notes);
-
-  useEffect(() => {
-    dispatch(fetchNotes());
-  }, [dispatch]);
+  const params = useParams();
   
   useEffect(() => {
-    const note = allNotes.find((note) => note.id === Number(params.id));
+    const note = notes.find((note) => note.id === Number(params.id));
     if (note) {
-      setInitialValues({
-        title: note.title,
-        content: note.content,
-      });
+      setCurrentNote(note);
+      
     }
-  }, [allNotes, params.id]);
+  }, [notes, params.id]);
 
 
 
@@ -42,12 +40,13 @@ const EditNote = () => {
 
   const handleSubmit = (values) => {
  
-    dispatch(editNote({
+    editNote({
       noteId: Number(params.id),
-      updateNote: values,
-    })).then(() => {
+      updatedNote: values
+    }).unwrap()
+    .then(() => {
       navigate('/');
-    });
+    })
   };
 
   return (
