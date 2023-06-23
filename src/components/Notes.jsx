@@ -1,27 +1,20 @@
 /* eslint-disable react/prop-types */
 
-import React, { useEffect } from "react";
+import React from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { useSelector, useDispatch } from "react-redux";
-import { deleteNote, fetchNotes } from "../store/api/NoteSlice";
+ 
+import {   useFechNotesQuery , useDeleteNotesMutation  } from "../store/api/NoteSlice";
 import { Link } from "react-router-dom";
 
 function Notes() {
-  const allNotes = useSelector((state) => state.notes);
-
-  const { notes, status, error } = allNotes;
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchNotes());
-  }, [dispatch]);
-
-  const deleteNoteHandler = (id) => {
-    dispatch(deleteNote(id));
+   const [deleteNotes] = useDeleteNotesMutation();
+   const {data:notes=[] } =  useFechNotesQuery();
+   console.log("data: " ,notes);
+  const deleteNoteHandler = (noteId) => {
+    deleteNotes(noteId);
   };
   
-
+// const notes=[];
   return (
     <div className="flex flex-wrap justify-center mt-5">
       {status === "loading" && <div className="relative p-5 bg-yellow-400 w-64 h-64 m-5 shadow-2xl overflow-hidden">Loading...</div>}
@@ -29,8 +22,7 @@ function Notes() {
       {notes.map((note) =>  (
         <div
           className="relative bg-yellow-400 w-64 h-64 m-5 shadow-2xl overflow-hidden"
-          key={note.id}
-        >
+          key={note.id} >
           <div className="p-5">
             <h3 className="font-bold text-2xl mb-4">{note.title}</h3>
             <p>{note.content}</p>
