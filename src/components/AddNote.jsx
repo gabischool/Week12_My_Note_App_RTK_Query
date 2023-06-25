@@ -1,32 +1,21 @@
-import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { useDispatch } from "react-redux";
-import { addNote } from "../store/api/NoteSlice";
-
-const AddNote = (props) => {
-
-  const dispatch = useDispatch();
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { useAddNotesMutation } from "../store/api/NoteSlice";
+const AddNote = () => {
+  const [addNotes] = useAddNotesMutation();
 
   const initialValues = {
-    title: '',
-    content: '',
+    title: "",
+    content: "",
   };
 
   const validationSchema = Yup.object({
-    title: Yup.string().required('Title is required'),
-    content: Yup.string().required('Content is required'),
+    title: Yup.string().required("Title is required"),
+    content: Yup.string().required("Content is required"),
   });
 
   const handleSubmit = (values, { resetForm }) => {
-    // Send the data to the server (localhost:9000/create_note)
-    dispatch(addNote({
-      title: values.title,
-      content: values.content,
-    }));
-    
-
-    // Reset the form after submission
+    addNotes(values);
     resetForm();
   };
 
@@ -35,8 +24,7 @@ const AddNote = (props) => {
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
+        onSubmit={handleSubmit}>
         <Form>
           <div className="mb-5">
             <Field
@@ -46,7 +34,11 @@ const AddNote = (props) => {
               placeholder="Title"
               className="border border-gray-300 shadow p-3 w-full rounded mb-"
             />
-            <ErrorMessage name="title" component="div" className="text-red-500" />
+            <ErrorMessage
+              name="title"
+              component="div"
+              className="text-red-500"
+            />
           </div>
 
           <div className="mb-5">
@@ -56,13 +48,16 @@ const AddNote = (props) => {
               placeholder="Body"
               className="border border-gray-300 shadow p-3 w-full rounded mb-"
             />
-            <ErrorMessage name="content" component="div" className="text-red-500" />
+            <ErrorMessage
+              name="content"
+              component="div"
+              className="text-red-500"
+            />
           </div>
 
           <button
             type="submit"
-            className="block w-full bg-yellow-400 text-black font-bold p-4 rounded-lg hover:bg-yellow-500"
-          >
+            className="block w-full bg-yellow-400 text-black font-bold p-4 rounded-lg hover:bg-yellow-500">
             Add Note
           </button>
         </Form>
