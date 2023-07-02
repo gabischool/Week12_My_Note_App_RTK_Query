@@ -17,8 +17,6 @@ function App() {
             <Route path="/edit/:id" element={<EditNote />} />
           }
           </Routes>
-            
-
           <Notes />
         </div>
       </div>
